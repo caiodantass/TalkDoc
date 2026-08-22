@@ -1,0 +1,46 @@
+# Environment variables & API Keys (NUNCA VERSIONAR)
+.env
+.env.local
+.env.*.local
+backend/.env
+frontend/.env
+
+# Python & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+backend/venv/
+venv/
+ENV/
+env/
+.venv/
+
+# Vector Database Persistence & Local Indexes
+backend/chroma_db/
+backend/app/chroma_db/
+chroma_db/
+*.sqlite3
+
+# Node & Frontend dependencies
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+.vite/
+frontend/.vite/
+
+# Temporary files & Private PDFs
+temp/
+tmp/
+*.tmp
+*.pdf
+!examples/*.pdf
+
+# IDE & System files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
