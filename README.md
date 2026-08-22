@@ -79,21 +79,21 @@ TalkDoc/
 
 ---
 
-## 🤖 Metodologia de Desenvolvimento e Uso de IA
+## 🤖 Metodologia de Desenvolvimento e Colaboração com IA
 
-O desenvolvimento do **TalkDoc** foi conduzido com autonomia técnica e engenharia ativa, utilizando ferramentas de IA (como GitHub Copilot e assistentes conversacionais) como **co-piloto de desenvolvimento (Pair Programming)**:
+O desenvolvimento do **TalkDoc** seguiu uma metodologia ativa de **Pair Programming (Programação em Par)** entre o desenvolvedor e o assistente de IA, combinando visão de produto, testes contínuos e engenharia de software:
 
-- **Papel e Liderança do Desenvolvedor (Decisões Humanas)**:
-  - Idealização, estruturação e arquitetura completa do ecossistema Fullstack (FastAPI + React + Docker).
-  - Seleção estratégica do pipeline de IA: substituição de modelos de embedding externos por **FastEmbed local** para eliminar custos e latência de rede.
-  - Engenharia do algoritmo de **Batch Indexing (lotes de 100)** para viabilizar a leitura de livros de centenas de páginas em segundos.
-  - Resolução de concorrência vetorial no SQLite/ChromaDB através do gerenciamento atômico de coleções com `PersistentClient`.
-  - Construção do Design System do zero em **CSS Puro**, fluxo de autenticação multi-tenant e componentes interativos de Gabarito com spoiler.
+- **Papel do Desenvolvedor (Direcionamento, Validação e Decisões)**:
+  - Definição dos requisitos funcionais, arquitetura da aplicação e regras de negócio do produto.
+  - Identificação de gargalos críticos durante os testes reais (ex: lentidão na indexação de PDFs grandes, bloqueios de concorrência no SQLite ao trocar de arquivos e respostas da IA fora do escopo do documento).
+  - Especificação detalhada de melhorias de UX (ex: necessidade de ocultar gabaritos com efeito spoiler, avatar com inicial do usuário e persistência de histórico isolada por conta).
+  - Validação contínua, revisão de código e homologação de cada funcionalidade entregue.
 
-- **Uso do Assistente de IA**:
-  - Utilizado como apoio pontual para acelerar a geração de boilerplates repetitivos.
-  - Consulta e pareamento de expressões regulares complexas para o parser de Markdown e detecção de padrões de resposta.
-  - Revisão e auxílio na calibragem dos prompts de sistema para mitigação de alucinações.
+- **Papel da IA (Co-piloto Técnico e Implementação Colaborativa)**:
+  - Auxílio na escrita do código do backend (FastAPI) e componentes do frontend (React).
+  - Investigação e resolução de erros complexos de infraestrutura (ajustes de CORS para navegadores Chromium e substituição de comandos de disco por deleção atômica no ChromaDB).
+  - Implementação da estratégia de **Batch Indexing (lotes de 100)** e integração do modelo de embeddings local **FastEmbed**.
+  - Construção da estilização do Design System em **CSS Puro** e elaboração de regex para formatação de Markdown.
 
 ---
 
