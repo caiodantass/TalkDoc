@@ -79,17 +79,21 @@ TalkDoc/
 
 ---
 
-## 🤖 Ferramentas de IA Utilizadas no Desenvolvimento
+## 🤖 Metodologia de Desenvolvimento e Uso de IA
 
-Durante o desenvolvimento do projeto, assistentes de IA baseados em LLMs foram utilizados para:
-- Apoio na ideação e refinamento de prompts do sistema RAG.
-- Geração de código boilerplate e auxílio no pareamento de regex para detecção de spoilers e formatação de Markdown.
+O desenvolvimento do **TalkDoc** foi conduzido com autonomia técnica e engenharia ativa, utilizando ferramentas de IA (como GitHub Copilot e assistentes conversacionais) como **co-piloto de desenvolvimento (Pair Programming)**:
 
-**Decisões que permaneceram sob responsabilidade humana**:
-- Definição da arquitetura desacoplada e do pipeline de embeddings locais via FastEmbed.
-- Implementação da estratégia de batching para indexação de livros pesados.
-- Construção da experiência de usuário (UX), componentes React e Design System em CSS.
-- Resolução de concorrência e isolamento atômico de coleções no ChromaDB.
+- **Papel e Liderança do Desenvolvedor (Decisões Humanas)**:
+  - Idealização, estruturação e arquitetura completa do ecossistema Fullstack (FastAPI + React + Docker).
+  - Seleção estratégica do pipeline de IA: substituição de modelos de embedding externos por **FastEmbed local** para eliminar custos e latência de rede.
+  - Engenharia do algoritmo de **Batch Indexing (lotes de 100)** para viabilizar a leitura de livros de centenas de páginas em segundos.
+  - Resolução de concorrência vetorial no SQLite/ChromaDB através do gerenciamento atômico de coleções com `PersistentClient`.
+  - Construção do Design System do zero em **CSS Puro**, fluxo de autenticação multi-tenant e componentes interativos de Gabarito com spoiler.
+
+- **Uso do Assistente de IA**:
+  - Utilizado como apoio pontual para acelerar a geração de boilerplates repetitivos.
+  - Consulta e pareamento de expressões regulares complexas para o parser de Markdown e detecção de padrões de resposta.
+  - Revisão e auxílio na calibragem dos prompts de sistema para mitigação de alucinações.
 
 ---
 
