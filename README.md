@@ -1,4 +1,4 @@
-# 📄 TalkDoc - Enterprise RAG Document Intelligence & AI Assistant
+# TalkDoc - Enterprise RAG Document Intelligence & AI Assistant
 
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/Frontend-React%20%2B%20Vite-61DAFB.svg?logo=react&logoColor=black)](https://react.dev/)
