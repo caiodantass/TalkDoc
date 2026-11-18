@@ -1,138 +1,142 @@
-# 📄 TalkDoc - RAG Document Chat & AI Assistant
+# 📄 TalkDoc - Enterprise RAG Document Intelligence & AI Assistant
 
-Aplicação Web Fullstack com arquitetura **RAG (Retrieval-Augmented Generation)** de alta performance, desenvolvida para o **Desafio Técnico TalkDoc (YAITEC Solutions)**.
+[![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/Frontend-React%20%2B%20Vite-61DAFB.svg?logo=react&logoColor=black)](https://react.dev/)
+[![Docker](https://img.shields.io/badge/Deployment-Docker%20Compose-2496ED.svg?logo=docker&logoColor=white)](https://www.docker.com/)
+[![VectorDB](https://img.shields.io/badge/Vector%20Store-ChromaDB-FF6F00.svg)](https://www.trychroma.com/)
+[![Embeddings](https://img.shields.io/badge/Embeddings-FastEmbed%20(ONNX)-792EE5.svg)](https://github.com/qdrant/fastembed)
+[![LLMs](https://img.shields.io/badge/LLM-Groq%20Llama%203%20%7C%20Gemini%201.5%20Flash-black.svg)](https://groq.com/)
 
-O **TalkDoc** permite que usuários façam upload de documentos em formato PDF, processem o conteúdo com extração inteligente e conversem com o documento em tempo real através de Inteligência Artificial generativa fundamentada, com citações explícitas de trechos e páginas de referência.
+Aplicação Web Full-Stack para análise inteligente de documentos baseada em **RAG (Retrieval-Augmented Generation)**. 
+
+O **TalkDoc** permite que usuários façam upload de documentos em formato PDF, executem indexação semântica vetorial em tempo real e conversem com os arquivos via IA Generativa factual, com citações explícitas de trechos e páginas de referência para mitigar alucinações.
 
 ---
 
-## 🏛️ Arquitetura do Sistema
+## 🏗️ Arquitetura do Sistema e Fluxo RAG
 
-O projeto adota uma arquitetura desacoplada e modular entre Backend (API REST RAG) e Frontend (Single Page Application moderna):
+```mermaid
+flowchart TD
+    subgraph Client ["Frontend (React SPA)"]
+        UI["Interface Dark Glassmorphism"]
+        Chat["Chat em Tempo Real & Citações"]
+        Upload["Upload de PDF & Progresso"]
+    end
 
+    subgraph Backend ["Backend API (FastAPI)"]
+        API["Roteadores REST (/upload, /chat)"]
+        Parser["Extrator PyMuPDF (fitz)"]
+        Chunker["Semantic Text Splitter"]
+        Embedder["FastEmbed (ONNX Runtime)"]
+    end
+
+    subgraph Storage ["Armazenamento & Vetorização"]
+        VectorDB[("ChromaDB Persistente")]
+    end
+
+    subgraph Inference ["Provedores de Inferência LLM"]
+        LLM["Groq (Llama 3) / Google Gemini 1.5 Flash"]
+    end
+
+    Upload -->|1. Envia PDF| API
+    API -->|2. Extrai texto e metadados| Parser
+    Parser -->|3. Chunking com Overlap| Chunker
+    Chunker -->|4. Gera Embeddings Locais em CPU| Embedder
+    Embedder -->|5. Indexação em Lote| VectorDB
+
+    Chat -->|6. Pergunta do Usuário| API
+    API -->|7. Busca Semântica Top-K| VectorDB
+    VectorDB -->|8. Trechos Relevantes + Metadados| API
+    API -->|9. Prompt com Escopo Estrito| LLM
+    LLM -->|10. Resposta Fundamentada + Citações| Chat
 ```
-TalkDoc/
-├── backend/
-│   ├── app/
-│   │   ├── api/             # Roteadores REST (/api/upload, /api/chat)
-│   │   ├── models/          # Schemas Pydantic tipados (ChatRequest, ChatResponse, SourceInfo)
-│   │   ├── services/        # Pipeline RAG, Chunking, Embeddings e Integração com LLMs
-│   │   └── main.py          # FastAPI app, Middlewares CORS e Healthcheck
-│   ├── Dockerfile           # Imagem Python 3.10-slim otimizada
-│   └── requirements.txt     # Dependências (FastAPI, PyMuPDF, LangChain, ChromaDB, FastEmbed)
-│
-├── frontend/
-│   ├── src/
-│   │   ├── components/      # ChatArea, UploadSidebar, ChatHistory, AuthModal
-│   │   ├── hooks/           # useChat, useDocumentUpload (Custom Hooks React)
-│   │   ├── services/        # Camada de comunicação HTTP com Multi-Fallback
-│   │   ├── App.jsx          # Container orquestrador, auto-restauração e multi-tenant
-│   │   └── index.css        # Design System moderno em CSS Puro (Dark Glassmorphism)
-│   ├── Dockerfile           # Imagem Node.js com Vite Dev Server
-│   └── vite.config.js       # Proxy reverso /api integrado
-│
-├── docker-compose.yml       # Orquestração unificada de containers com volume e hot-reload
-└── .env.example             # Modelo seguro de variáveis de ambiente
-```
 
 ---
 
-## ⚙️ Pipeline de IA e RAG (Retrieval-Augmented Generation)
+## ⚡ Destaques de Engenharia e Performance
 
-1. **Extração de Texto Precisa**:
-   - Utilização da biblioteca `PyMuPDF (fitz)` para leitura rápida e extração de texto preservando metadados exatos de cada página.
+* **Embeddings Locais com Zero Custo de API**:
+  * Utilização do **FastEmbed** (`BAAI/bge-small-en-v1.5`) executado localmente via **ONNX Runtime** com multithreading em CPU.
+  * Indexação ultrarrápida sem cobrança de tokens ou limites de requisições externas (*rate limits*).
 
-2. **Chunking Semântico Otimizado**:
-   - `RecursiveCharacterTextSplitter` configurado com `chunk_size = 3500` e `chunk_overlap = 350`, gerando blocos semânticos densos e reduzindo o overhead vetorial.
+* **Indexação em Lote Otimizada (*Batch Processing*)**:
+  * Ingestão de vetores no **ChromaDB** em lotes de 100 documentos, acelerando o processamento de livros e relatórios extensos em até 10x.
 
-3. **Embeddings Locais Ultrarrápidos**:
-   - Utilização do modelo `FastEmbed (BAAI/bge-small-en-v1.5)` rodando localmente via ONNX Runtime com multithreading em CPU, garantindo geração de embeddings em milissegundos sem custos de API ou limites de taxa externos.
+* **Mitigação de Alucinações & Escopo Estrito**:
+  * Engenharia de prompt rigorosa com temperatura 0.0: o modelo responde exclusivamente com base no contexto recuperado do documento.
+  * Citações auditáveis indicando o número da página e o trecho exato que originou a resposta.
 
-4. **Armazenamento Vetorial e Isolamento de Coleções**:
-   - Utilização do **ChromaDB** persistente (`PersistentClient`) com deleção atômica de coleções entre uploads, prevenindo conflitos de concorrência ou bloqueios de SQLite.
-   - **Inserção em Lotes (Batch Processing de 100)**: Acelera o processamento de livros pesados (centenas de páginas) em até 10x.
+* **Arquitetura Desacoplada e Isolada**:
+  * Deleção atômica de coleções no ChromaDB entre uploads para prevenir *locks* de SQLite e conflitos de concorrência.
+  * Proxy reverso integrado via Vite, eliminando atritos de CORS entre navegador e API.
 
-5. **Recuperação Top-K e Geração Fundamentada**:
-   - Busca por similaridade vetorial com `k = 6` trechos mais relevantes.
-   - Chamada a modelos de ponta com **temperatura 0.0** (`Groq / Llama 3 / Mixtral` ou `Google Gemini 1.5 Flash`) para respostas 100% determinísticas e factuais.
-
-6. **Prompt Engineering & Regras de Escopo**:
-   - **Escopo Estrito do Documento**: A IA responde exclusivamente com base no PDF. Perguntas aleatórias fora do assunto são recusadas educadamente.
-   - **Tolerância a Erros Ortográficos**: Entende a intenção do usuário mesmo com erros de digitação e typos.
-   - **Gabarito Oculto com Efeito Spoiler**: Quizzes e testes gerados contam com o gabarito protegido/borrado, com botão de revelação sob demanda (`👁️ Revelar Gabarito`).
+* **Design System Customizado**:
+  * Interface moderna desenvolvida em CSS Puro (sem dependências pesadas de UI), com efeito Glassmorphism, paleta Dark Neon e componentes interativos como gabaritos protegidos com efeito spoiler.
 
 ---
 
-## 🛠️ Decisões Técnicas
+## 📁 Estrutura de Diretórios
 
-1. **FastAPI no Backend**: Escolhido pela alta velocidade assíncrona, validação nativa com Pydantic e documentação interativa automática OpenAPI/Swagger.
-2. **Proxy Reverso no Vite**: O Frontend encaminha chamadas para `/api` diretamente pela rede interna do Docker, eliminando conflitos de CORS entre navegadores.
-3. **Multi-Tenant e Persistência Local**: Históricos, conversas e documentos ativos são isolados por e-mail no `localStorage`, garantindo restauração instantânea após recarregar a página (`F5`).
-4. **CSS Puro com Design System Personalizado**: Interface desenvolvida em CSS moderno com variáveis, sombras neon, efeito Glassmorphism e responsividade completa.
+TalkDoc/ ├── backend/ │ ├── app/ │ │ ├── api/ # Endpoints REST (/api/upload, /api/chat) │ │ ├── models/ # Schemas Pydantic tipados (ChatRequest, SourceInfo) │ │ ├── services/ # Pipeline RAG, Chunking, Embeddings e LLMs │ │ └── main.py # FastAPI app, Middlewares CORS e Healthcheck │ ├── Dockerfile # Imagem Python 3.10-slim otimizada │ └── requirements.txt # Dependências (FastAPI, PyMuPDF, LangChain, ChromaDB) │ ├── frontend/ │ ├── src/ │ │ ├── components/ # ChatArea, UploadSidebar, ChatHistory, AuthModal │ │ ├── hooks/ # useChat, useDocumentUpload (Custom Hooks React) │ │ ├── services/ # Camada de comunicação HTTP │ │ ├── App.jsx # Orquestrador de estado e persistência local │ │ └── index.css # Design System em CSS Puro (Dark Glassmorphism) │ ├── Dockerfile # Imagem Node.js com Vite Dev Server │ └── vite.config.js # Proxy reverso /api integrado │ ├── docker-compose.yml # Orquestração unificada de containers └── .env.example # Modelo seguro de variáveis de ambiente
 
----
 
-## ⚠️ Limitações Conhecidas
-
-- **PDFs Escaneados (Imagens)**: Arquivos sem camada de texto (scans fotográficos sem OCR prévio) não possuem caracteres extraíveis pelo PyMuPDF.
-- **Contexto Ativo Singular**: A aplicação foca a busca semântica no documento atualmente ativo na sessão. Ao trocar de documento ou iniciar novo chat, o índice da sessão ativa é alternado.
 
 ---
 
-## 🤖 Metodologia de Desenvolvimento e Colaboração com IA
+## 🛠️ Stack Tecnológica
 
-O desenvolvimento do **TalkDoc** seguiu uma metodologia ativa de **Pair Programming (Programação em Par)** entre o desenvolvedor e o assistente de IA, combinando visão de produto, testes contínuos e engenharia de software:
-
-- **Papel do Desenvolvedor (Direcionamento, Validação e Decisões)**:
-  - Definição dos requisitos funcionais, arquitetura da aplicação e regras de negócio do produto.
-  - Identificação de gargalos críticos durante os testes reais (ex: lentidão na indexação de PDFs grandes, bloqueios de concorrência no SQLite ao trocar de arquivos e respostas da IA fora do escopo do documento).
-  - Especificação detalhada de melhorias de UX (ex: necessidade de ocultar gabaritos com efeito spoiler, avatar com inicial do usuário e persistência de histórico isolada por conta).
-  - Validação contínua, revisão de código e homologação de cada funcionalidade entregue.
-
-- **Papel da IA (Co-piloto Técnico e Implementação Colaborativa)**:
-  - Auxílio na escrita do código do backend (FastAPI) e componentes do frontend (React).
-  - Investigação e resolução de erros complexos de infraestrutura (ajustes de CORS para navegadores Chromium e substituição de comandos de disco por deleção atômica no ChromaDB).
-  - Implementação da estratégia de **Batch Indexing (lotes de 100)** e integração do modelo de embeddings local **FastEmbed**.
-  - Construção da estilização do Design System em **CSS Puro** e elaboração de regex para formatação de Markdown.
+| Camada | Tecnologias |
+| :--- | :--- |
+| **Backend & API** | Python 3.10, FastAPI, Pydantic, Uvicorn |
+| **Pipeline RAG** | LangChain, PyMuPDF (`fitz`), ChromaDB, FastEmbed (ONNX) |
+| **Modelos de Linguagem** | Groq (Llama 3 / Mixtral), Google Gemini 1.5 Flash |
+| **Frontend** | React 18, Vite, JavaScript moderno, CSS3 Puro (Glassmorphism) |
+| **DevOps & Containers** | Docker, Docker Compose |
 
 ---
 
 ## 🚀 Como Executar o Projeto
 
 ### Pré-requisitos
-- [Docker](https://www.docker.com/) e [Docker Compose](https://docs.docker.com/compose/) instalados.
-- Uma chave de API gratuita do **Groq** ([console.groq.com](https://console.groq.com/keys)) ou **Google Gemini** ([aistudio.google.com](https://aistudio.google.com/)).
+* [Docker](https://www.docker.com/) e [Docker Compose](https://docs.docker.com/compose/) instalados.
+* Uma chave de API gratuita do **Groq** ([console.groq.com](https://console.groq.com/keys)) ou **Google Gemini** ([aistudio.google.com](https://aistudio.google.com/)).
 
 ### Passo a Passo
 
 1. **Clone o repositório**:
    ```bash
-   git clone <URL_DO_REPOSITORIO>
-   cd TalkDoc
-   ```
+   git clone https://github.com/caiodantass/TalkDoc.git
+   cd TalkDoc 
 
-2. **Configure o arquivo de variáveis de ambiente**:
-   Copie o arquivo de exemplo `.env.example` para `.env` (na raiz ou dentro de `backend/`):
+2. **Configure as variáveis de ambiente**:
+   Copie o arquivo `.env.example` para `backend/.env`:
    ```bash
    cp .env.example backend/.env
    ```
-   Abra o arquivo `backend/.env` e insira sua chave:
+   Abra `backend/.env` e insira sua chave de API:
    ```env
-   GROQ_API_KEY=gsk_sua_chave_aqui
+   GROQ_API_KEY=sua_chave_groq_aqui
    # OU
    GEMINI_API_KEY=sua_chave_gemini_aqui
    ```
 
-3. **Suba a aplicação com Docker Compose**:
+3. **Inicie os containers com Docker Compose**:
    ```bash
    docker compose up --build
    ```
 
-4. **Acesse no seu navegador**:
-   - **Aplicação Web (Frontend)**: [http://localhost:5173](http://localhost:5173)
-   - **Documentação da API (Swagger)**: [http://localhost:8000/docs](http://localhost:8000/docs)
-   - **Healthcheck**: [http://localhost:8000/health](http://localhost:8000/health)
+4. **Acesse as interfaces**:
+   * **Frontend da Aplicação**: [http://localhost:5173](http://localhost:5173)
+   * **Documentação Interativa da API (Swagger)**: [http://localhost:8000/docs](http://localhost:8000/docs)
+   * **Healthcheck**: [http://localhost:8000/health](http://localhost:8000/health)
 
 ---
 
-Desenvolvido com foco em excelência técnica, código limpo e arquitetura de IA escalável. 🚀
+## 👨‍💻 Autor
+
+**Caio Lívio Dantas**  
+* Engenheiro de Software / Desenvolvedor  
+* LinkedIn: [linkedin.com/in/caio-lívio](https://www.linkedin.com/in/caio-l%C3%ADvio/)  
+* GitHub: [@caiodantass](https://github.com/caiodantass)
+
+
