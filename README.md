@@ -13,7 +13,7 @@ O **TalkDoc** permite que usuários façam upload de documentos em formato PDF, 
 
 ---
 
-## 🏗️ Arquitetura do Sistema e Fluxo RAG
+## Arquitetura do Sistema e Fluxo RAG
 
 ```mermaid
 flowchart TD
@@ -53,7 +53,7 @@ flowchart TD
 
 ---
 
-## ⚡ Destaques de Engenharia e Performance
+## Destaques de Engenharia e Performance
 
 * **Embeddings Locais com Zero Custo de API**:
   * Utilização do **FastEmbed** (`BAAI/bge-small-en-v1.5`) executado localmente via **ONNX Runtime** com multithreading em CPU.
@@ -75,7 +75,7 @@ flowchart TD
 
 ---
 
-## 📁 Estrutura de Diretórios
+## Estrutura de Diretórios
 
 TalkDoc/ ├── backend/ │ ├── app/ │ │ ├── api/ # Endpoints REST (/api/upload, /api/chat) │ │ ├── models/ # Schemas Pydantic tipados (ChatRequest, SourceInfo) │ │ ├── services/ # Pipeline RAG, Chunking, Embeddings e LLMs │ │ └── main.py # FastAPI app, Middlewares CORS e Healthcheck │ ├── Dockerfile # Imagem Python 3.10-slim otimizada │ └── requirements.txt # Dependências (FastAPI, PyMuPDF, LangChain, ChromaDB) │ ├── frontend/ │ ├── src/ │ │ ├── components/ # ChatArea, UploadSidebar, ChatHistory, AuthModal │ │ ├── hooks/ # useChat, useDocumentUpload (Custom Hooks React) │ │ ├── services/ # Camada de comunicação HTTP │ │ ├── App.jsx # Orquestrador de estado e persistência local │ │ └── index.css # Design System em CSS Puro (Dark Glassmorphism) │ ├── Dockerfile # Imagem Node.js com Vite Dev Server │ └── vite.config.js # Proxy reverso /api integrado │ ├── docker-compose.yml # Orquestração unificada de containers └── .env.example # Modelo seguro de variáveis de ambiente
 
@@ -83,7 +83,7 @@ TalkDoc/ ├── backend/ │ ├── app/ │ │ ├── api/ # Endpoint
 
 ---
 
-## 🛠️ Stack Tecnológica
+## Stack Tecnológica
 
 | Camada | Tecnologias |
 | :--- | :--- |
@@ -95,7 +95,7 @@ TalkDoc/ ├── backend/ │ ├── app/ │ │ ├── api/ # Endpoint
 
 ---
 
-## 🚀 Como Executar o Projeto
+## Como Executar o Projeto
 
 ### Pré-requisitos
 * [Docker](https://www.docker.com/) e [Docker Compose](https://docs.docker.com/compose/) instalados.
@@ -132,7 +132,7 @@ TalkDoc/ ├── backend/ │ ├── app/ │ │ ├── api/ # Endpoint
 
 ---
 
-## 👨‍💻 Autor
+## Autor
 
 **Caio Lívio Dantas**  
 * Engenheiro de Software / Desenvolvedor  
